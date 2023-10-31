@@ -47,66 +47,90 @@ func TestCreateTransfer(t *testing.T) {
 }
 
 func TestGetTransfer(t *testing.T) {
-	arg := CreateTransferParams{
-		FromAccountID: util.RandomInt(0, 100),
-		ToAccountID:   util.RandomInt(0, 100),
-		Amount:        util.RandomInt(0, 10000),
-	}
+	t.Run("success get transfer by id", func(t *testing.T) {
+		arg := CreateTransferParams{
+			FromAccountID: util.RandomInt(0, 100),
+			ToAccountID:   util.RandomInt(0, 100),
+			Amount:        util.RandomInt(0, 10000),
+		}
 
-	mockId := util.RandomInt(0, 100)
+		mockId := util.RandomInt(0, 100)
 
-	rows := sqlmock.NewRows([]string{
-		"id",
-		"from_account_id",
-		"to_account_id",
-		"amount",
-		"created_at",
-	}).AddRow(mockId, arg.FromAccountID, arg.ToAccountID, arg.Amount, time.Now())
+		rows := sqlmock.NewRows([]string{
+			"id",
+			"from_account_id",
+			"to_account_id",
+			"amount",
+			"created_at",
+		}).AddRow(mockId, arg.FromAccountID, arg.ToAccountID, arg.Amount, time.Now())
 
-	mocksql.ExpectQuery("SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers").
-		WithArgs(mockId).
-		WillReturnRows(rows)
+		mocksql.ExpectQuery("SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers").
+			WithArgs(mockId).
+			WillReturnRows(rows)
 
-	transfer, err := testMockQueries.GetTransfer(context.Background(), mockId)
+		transfer, err := testMockQueries.GetTransfer(context.Background(), mockId)
 
-	require.NoError(t, err)
-	require.NotEmpty(t, transfer)
-	require.Equal(t, mockId, transfer.ID)
+		require.NoError(t, err)
+		require.NotEmpty(t, transfer)
+		require.Equal(t, mockId, transfer.ID)
+	})
+
+	t.Run("given invalid id type will return error", func(t *testing.T) {
+		transfer, err := testMockQueries.GetTransfer(context.Background(), 'A')
+
+		require.Error(t, err)
+		require.Empty(t, transfer)
+	})
 }
 
 func TestListTransfers(t *testing.T) {
-	arg := ListTransfersParams{
-		Limit:  5,
-		Offset: 5,
-	}
+	t.Run("given valid argument will return list of transfer data", func(t *testing.T) {
+		arg := ListTransfersParams{
+			Limit:  5,
+			Offset: 5,
+		}
 
-	numOfRows := 5
+		numOfRows := 5
 
-	rows := sqlmock.NewRows([]string{
-		"id",
-		"from_account_id",
-		"to_account_id",
-		"amount",
-		"created_at",
+		rows := sqlmock.NewRows([]string{
+			"id",
+			"from_account_id",
+			"to_account_id",
+			"amount",
+			"created_at",
+		})
+
+		for i := 0; i < numOfRows; i++ {
+			row := []driver.Value{
+				util.RandomInt(0, 100),
+				util.RandomInt(0, 100),
+				util.RandomInt(0, 100),
+				util.RandomMoney(),
+				time.Now(),
+			}
+			rows = rows.AddRow(row...)
+		}
+
+		mocksql.ExpectQuery("SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers ORDER BY id").
+			WithArgs(arg.Limit, arg.Offset).
+			WillReturnRows(rows)
+
+		transfers, err := testMockQueries.ListTransfers(context.Background(), arg)
+
+		require.NoError(t, err)
+		require.Len(t, transfers, int(arg.Limit))
 	})
 
-	for i := 0; i < numOfRows; i++ {
-		row := []driver.Value{
-			util.RandomInt(0, 100),
-			util.RandomInt(0, 100),
-			util.RandomInt(0, 100),
-			util.RandomMoney(),
-			time.Now(),
+	t.Run("given invalid limit argument will return an error", func(t *testing.T) {
+		arg := ListTransfersParams{
+			Limit:  -5,
+			Offset: -5,
 		}
-		rows = rows.AddRow(row...)
-	}
 
-	mocksql.ExpectQuery("SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers ORDER BY id").
-		WithArgs(arg.Limit, arg.Offset).
-		WillReturnRows(rows)
+		transfers, err := testMockQueries.ListTransfers(context.Background(), arg)
 
-	transfers, err := testMockQueries.ListTransfers(context.Background(), arg)
-
-	require.NoError(t, err)
-	require.Len(t, transfers, int(arg.Limit))
+		require.Error(t, err)
+		require.Empty(t, transfers)
+		require.Len(t, transfers, 0)
+	})
 }

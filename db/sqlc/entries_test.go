@@ -31,19 +31,34 @@ func TestGetEntry(t *testing.T) {
 }
 
 func TestListEntries(t *testing.T) {
-	arg := ListEntriesParams{
-		Limit:  5,
-		Offset: 5,
-	}
+	t.Run("given valid argument will return list of entries", func(t *testing.T) {
+		arg := ListEntriesParams{
+			Limit:  5,
+			Offset: 5,
+		}
 
-	for i := 0; i < 10; i++ {
-		createRandomEntry(t)
-	}
+		for i := 0; i < 10; i++ {
+			createRandomEntry(t)
+		}
 
-	entries, err := testQueries.ListEntries(context.Background(), arg)
+		entries, err := testQueries.ListEntries(context.Background(), arg)
 
-	require.NoError(t, err)
-	require.Len(t, entries, 5)
+		require.NoError(t, err)
+		require.Len(t, entries, 5)
+	})
+
+	t.Run("given invalid limit and offset value will return an error", func(t *testing.T) {
+		arg := ListEntriesParams{
+			Limit:  -5,
+			Offset: -5,
+		}
+
+		entries, err := testQueries.ListEntries(context.Background(), arg)
+
+		require.Error(t, err)
+		require.Empty(t, entries)
+		require.Len(t, entries, 0)
+	})
 }
 
 func createRandomEntry(t *testing.T) Entry {

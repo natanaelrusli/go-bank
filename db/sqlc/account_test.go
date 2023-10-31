@@ -94,23 +94,38 @@ func TestDeleteAccount(t *testing.T) {
 }
 
 func TestListAccounts(t *testing.T) {
-	for i := 0; i < 10; i++ {
-		createRandomAccount(t)
-	}
+	t.Run("given valid argument will return a list of accounts", func(t *testing.T) {
+		for i := 0; i < 10; i++ {
+			createRandomAccount(t)
+		}
 
-	arg := ListAccountsParams{
-		Limit:  10,
-		Offset: 0,
-	}
+		arg := ListAccountsParams{
+			Limit:  10,
+			Offset: 0,
+		}
 
-	accounts, err := testQueries.ListAccounts(context.Background(), arg)
+		accounts, err := testQueries.ListAccounts(context.Background(), arg)
 
-	require.NoError(t, err)
-	require.Len(t, accounts, 10)
+		require.NoError(t, err)
+		require.Len(t, accounts, 10)
 
-	for _, account := range accounts {
-		require.NotEmpty(t, account)
-	}
+		for _, account := range accounts {
+			require.NotEmpty(t, account)
+		}
+	})
+
+	t.Run("given invalid limit and offset value will return an error", func(t *testing.T) {
+		arg := ListAccountsParams{
+			Limit:  -5,
+			Offset: -5,
+		}
+
+		accounts, err := testQueries.ListAccounts(context.Background(), arg)
+
+		require.Error(t, err)
+		require.Empty(t, accounts)
+		require.Len(t, accounts, 0)
+	})
 }
 
 func createRandomAccount(t *testing.T) Account {
