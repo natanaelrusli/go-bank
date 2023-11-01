@@ -18,14 +18,15 @@ const (
 var testQueries *Queries
 var testMockQueries *Queries
 var mocksql sqlmock.Sqlmock
+var testDB *sql.DB
 
 func TestMain(m *testing.M) {
-	conn, err := sql.Open(dbDriver, dbSource)
+	var err error
+
+	_, err = sql.Open(dbDriver, dbSource)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
-
-	testQueries = New(conn)
 
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -36,6 +37,14 @@ func TestMain(m *testing.M) {
 
 	testMockQueries = New(mockDB)
 	mocksql = mock
+
+	testDB, err = sql.Open(dbDriver, dbSource)
+
+	if err != nil {
+		log.Fatal("failed connecting to testDB")
+	}
+
+	testQueries = New(testDB)
 
 	os.Exit(m.Run())
 }
