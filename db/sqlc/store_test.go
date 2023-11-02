@@ -21,7 +21,7 @@ func TestTransferTx(t *testing.T) {
 
 	for i := 0; i < n; i++ {
 		go func() {
-			result, err := store.TransferTx(context.Background(), TransferTxParams{
+			result, err := store.TransferTx(context.Background(), CreateTransferParams{
 				FromAccountID: account1.ID,
 				ToAccountID:   account2.ID,
 				Amount:        amount,
@@ -62,6 +62,14 @@ func TestTransferTx(t *testing.T) {
 		_, err = store.GetEntry(context.Background(), fromEntry.ID)
 		require.NoError(t, err)
 
-		// TODO: check account's balance
+		// check account's balance
+		fromAccount := result.FromAccount
+		toAccount := result.ToAccount
+
+		expectedFromAccount := account1.Balance - transfer.Amount
+		expectedToAccount := account2.Balance + transfer.Amount
+
+		require.Equal(t, expectedFromAccount, fromAccount.Balance)
+		require.Equal(t, expectedToAccount, toAccount.Balance)
 	}
 }
