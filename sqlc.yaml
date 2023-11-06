@@ -9,3 +9,5 @@ packages:
     emit_prepared_queries: false
     emit_interface: false
     emit_exact_table_names: false
+    # this will return empty slices instead of nil
+    emit_empty_slices: true
