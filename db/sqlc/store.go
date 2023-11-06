@@ -50,6 +50,19 @@ type TransferTxResult struct {
 	ToEntry     Entry    `json:"to_entry"`
 }
 
+type TopupTxParams struct {
+	Source    string  `json:"source"`
+	Amount    int64   `json:"amount"`
+	ToAccount Account `json:"to_account"`
+}
+
+type TopupTxResult struct {
+	Source    string  `json:"source"`
+	Amount    int64   `json:"amount"`
+	ToAccount Account `json:"to_account"`
+	ToEntry   Entry   `json:"to_entry"`
+}
+
 var txKey = struct{}{}
 
 func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
@@ -60,11 +73,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 
 		txName := ctx.Value(txKey)
 
-		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
-			FromAccountID: arg.FromAccountID,
-			ToAccountID:   arg.ToAccountID,
-			Amount:        arg.Amount,
-		})
+		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams(arg))
 
 		if err != nil {
 			return err
@@ -100,6 +109,10 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 	})
 
 	return result, err
+}
+
+func (store *Store) TopupTx(ctx context.Context, arg TopupTxParams) (*TopupTxResult, error) {
+	return nil, nil
 }
 
 func addMoney(
