@@ -1,10 +1,5 @@
 name: ci-test
 
-env:
-  DB_DRIVER: postgres
-  DB_SOURCE: postgresql://root:secret@localhost:5433/simple_bank?sslmode=disable
-  SERVER_ADDRESS: 0.0.0.0:8080
-
 on:
   push:
     branches: [main]
@@ -15,6 +10,11 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+
+    env:
+      DB_DRIVER: ${{ secrets.DB_DRIVER }}
+      DB_SOURCE: ${{ secrets.DB_SOURCE }}
+      SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
 
     steps:
       - name: Set up Go 1.x
