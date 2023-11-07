@@ -112,7 +112,9 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 }
 
 func (store *Store) TopupTx(ctx context.Context, arg TopupTxParams) (*TopupTxResult, error) {
-	return nil, nil
+	var result *TopupTxResult
+
+	return result, nil
 }
 
 func addMoney(

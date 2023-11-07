@@ -164,3 +164,5 @@ func TestTransferTxDeadlock(t *testing.T) {
 	require.Equal(t, account1.Balance, updatedAccount1.Balance)
 	require.Equal(t, account2.Balance, updatedAccount2.Balance)
 }
+
+func TestTopupTx(t *testing.T) {}
