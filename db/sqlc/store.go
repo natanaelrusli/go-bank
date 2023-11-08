@@ -120,6 +120,16 @@ func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (Tr
 func (store *SQLStore) TopupTx(ctx context.Context, arg TopupTxParams) (*TopupTxResult, error) {
 	var result *TopupTxResult
 
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		return err
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
 	return result, nil
 }
 
