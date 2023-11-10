@@ -26,7 +26,6 @@ func TestGetAccountAPI(t *testing.T) {
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
-		// TODO: add testCases
 		{
 			name:      "OK",
 			accountID: account.ID,
