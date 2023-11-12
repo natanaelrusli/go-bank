@@ -78,7 +78,7 @@ func TestGetAccountAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server, _ := NewServer(store, util.Config{})
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/accounts/%d", account.ID)
@@ -101,7 +101,7 @@ func TestGetInvalidID(t *testing.T) {
 		Times(0).
 		Return(db.Account{}, sql.ErrConnDone)
 
-	server := NewServer(store)
+	server, _ := NewServer(store, util.Config{})
 	recorder := httptest.NewRecorder()
 
 	url := fmt.Sprintf("/accounts/%s", invalidID)

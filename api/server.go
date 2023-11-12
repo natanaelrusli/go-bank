@@ -19,7 +19,7 @@ type Server struct {
 }
 
 func NewServer(store db.Store, config util.Config) (*Server, error) {
-	tokenMaker, err := token.NewPasetoMaker("")
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker %v", err)
 	}
@@ -44,6 +44,7 @@ func NewServer(store db.Store, config util.Config) (*Server, error) {
 	router.POST("/users", server.createUser)
 
 	router.POST("/auth", server.login)
+	router.POST("/login", server.loginUser)
 
 	server.router = router
 	return server, nil
