@@ -23,7 +23,9 @@ sqlc:
 	sqlc generate
 
 test:
-	go test ./... -v
+	go test -coverpkg=./... -race -coverprofile=coverage.out ./...
+	go tool cover -func=coverage.out | grep total
+	rm coverage.out
 
 server:
 	go run main.go
