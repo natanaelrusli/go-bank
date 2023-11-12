@@ -53,7 +53,7 @@ func (server *Server) login(ctx *gin.Context) {
 		return
 	}
 
-	tokenMaker, err := token.NewJWTMaker(config.SecretKey)
+	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
